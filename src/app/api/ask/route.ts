@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
         if (geminiKey) {
             try {
                 const geminiRes = await fetch(
-                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`,
+                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${geminiKey}`,
                     {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
                                 },
                             ],
                             generationConfig: {
-                                maxOutputTokens: 200,
+                                maxOutputTokens: 500,
                                 temperature: 0.7,
                             },
                         }),
@@ -117,12 +117,12 @@ export async function POST(req: NextRequest) {
                             Authorization: `Bearer ${openRouterKey}`,
                         },
                         body: JSON.stringify({
-                            model: "google/gemini-2.0-flash-exp:free",
+                            model: "arcee-ai/trinity-mini:free",
                             messages: [
                                 { role: "system", content: SYSTEM_PROMPT },
                                 { role: "user", content: query },
                             ],
-                            max_tokens: 200,
+                            max_tokens: 1500,
                             temperature: 0.7,
                         }),
                     }
@@ -130,7 +130,9 @@ export async function POST(req: NextRequest) {
 
                 if (orRes.ok) {
                     const data = await orRes.json();
-                    const text = data?.choices?.[0]?.message?.content || "";
+                    const msg = data?.choices?.[0]?.message;
+                    // Reasoning models may return content in reasoning field
+                    const text = msg?.content || "";
                     if (text) {
                         const lines = text
                             .split("\n")

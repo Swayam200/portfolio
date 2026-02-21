@@ -172,7 +172,14 @@ export default function TerminalCore({ embedded = false, onExit, initialCommand 
                 }
 
                 case "resume": {
-                    lines.push(out(""), out("  Downloading resume...", "text-blue-400"), out("  [Add your resume PDF to /public/resume.pdf]"), out(""));
+                    lines.push(out(""), out("  Downloading resume...", "text-blue-400"), out(""));
+                    // Trigger actual download
+                    const link = document.createElement("a");
+                    link.href = "/resume.pdf";
+                    link.download = "Swayam_Prakash_Panda_Resume.pdf";
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
                     break;
                 }
 
