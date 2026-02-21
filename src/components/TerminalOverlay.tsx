@@ -38,9 +38,9 @@ export default function TerminalOverlay() {
 
             {/* Terminal Panel — slides up from bottom */}
             <div
-                className={`fixed bottom-0 left-0 right-0 z-[100] transition-transform duration-300 ease-out ${isOpen ? "translate-y-0" : "translate-y-full"
+                style={{ height: "85vh" }}
+                className={`fixed bottom-0 left-0 right-0 z-[100] transition-transform duration-300 ease-out md:!h-[65vh] ${isOpen ? "translate-y-0" : "translate-y-full"
                     }`}
-                style={{ height: "65vh" }}
             >
                 {/* Handle bar */}
                 <div className="flex justify-center py-1.5 bg-[#111111] border-t border-x border-gray-800 rounded-t-xl cursor-grab">
@@ -59,11 +59,11 @@ export default function TerminalOverlay() {
                             TERMINAL
                         </span>
                     </div>
-                    <span className="text-xs text-gray-500 font-[family-name:var(--font-fira-code)]">
+                    <span className="text-xs text-gray-500 font-[family-name:var(--font-fira-code)] hidden md:inline truncate max-w-[200px]">
                         swayam@portfolio ~ zsh
                     </span>
                     <div className="flex items-center gap-2">
-                        <span className="text-[10px] text-gray-600 font-[family-name:var(--font-fira-code)]">
+                        <span className="text-[10px] text-gray-600 font-[family-name:var(--font-fira-code)] hidden md:inline">
                             Ctrl+` to toggle
                         </span>
                         <button

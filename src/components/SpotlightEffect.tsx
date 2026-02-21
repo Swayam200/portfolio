@@ -15,8 +15,21 @@ export default function SpotlightEffect() {
             }
         };
 
+        const handleTouchMove = (e: TouchEvent) => {
+            if (spotlightRef.current && e.touches[0]) {
+                const x = (e.touches[0].clientX / window.innerWidth) * 100;
+                const y = (e.touches[0].clientY / window.innerHeight) * 100;
+                spotlightRef.current.style.setProperty("--x", `${x}%`);
+                spotlightRef.current.style.setProperty("--y", `${y}%`);
+            }
+        };
+
         document.addEventListener("mousemove", handleMouseMove);
-        return () => document.removeEventListener("mousemove", handleMouseMove);
+        document.addEventListener("touchmove", handleTouchMove, { passive: true });
+        return () => {
+            document.removeEventListener("mousemove", handleMouseMove);
+            document.removeEventListener("touchmove", handleTouchMove);
+        };
     }, []);
 
     return <div ref={spotlightRef} id="spotlight" />;

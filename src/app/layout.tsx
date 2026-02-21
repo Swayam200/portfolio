@@ -5,6 +5,7 @@ import Sidebar from "@/components/Sidebar";
 import SpotlightEffect from "@/components/SpotlightEffect";
 import GrainOverlay from "@/components/GrainOverlay";
 import MusicPlayer from "@/components/MusicPlayer";
+import MobileNav from "@/components/MobileNav";
 import TerminalOverlay from "@/components/TerminalOverlay";
 import { TerminalProvider } from "@/context/TerminalContext";
 import { Analytics } from "@vercel/analytics/next";
@@ -46,12 +47,13 @@ export default function RootLayout({
 
           <div className="relative z-20 flex flex-col md:flex-row h-screen w-full">
             <Sidebar />
-            <main className="flex-grow flex flex-col relative h-screen overflow-hidden">
+            <main className="flex-grow flex flex-col relative flex-1 min-h-0 overflow-hidden pb-14 md:pb-0">
               {children}
               <MusicPlayer />
             </main>
           </div>
 
+          <MobileNav />
           <TerminalOverlay />
         </TerminalProvider>
         <Analytics />

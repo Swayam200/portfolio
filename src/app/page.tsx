@@ -139,15 +139,16 @@ export default function Home() {
 
           {/* Status Bar */}
           <div className="flex justify-between items-center mt-6 text-xs font-[family-name:var(--font-fira-code)] text-gray-500 px-4">
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 md:space-x-4">
               <span className="flex items-center">
                 <span className="w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse" />
-                Available for hire
+                <span className="hidden sm:inline">Available for hire</span>
+                <span className="sm:hidden">Hiring</span>
               </span>
-              <span>utf-8</span>
+              <span className="hidden sm:inline">utf-8</span>
             </div>
-            <div className="flex items-center space-x-4">
-              <span>Ln 8, Col 36</span>
+            <div className="flex items-center space-x-2 md:space-x-4">
+              <span className="hidden sm:inline">Ln 8, Col 36</span>
               <span>JavaScript</span>
             </div>
           </div>

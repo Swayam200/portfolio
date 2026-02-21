@@ -147,6 +147,20 @@
   z-index: 10;
 }
 
+/* Reduce grain overlay intensity on mobile for performance */
+@media (max-width: 768px) {
+  .bg-grain {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100vh;
+    opacity: 0.03;
+    animation: none;
+  }
+}
+
 /* Spotlight effect */
 #spotlight {
   position: fixed;
@@ -166,6 +180,15 @@
   white-space: nowrap;
   border-right: 2px solid rgba(255, 255, 255, 0.75);
   animation: typewriter 3s steps(40) 1s 1 normal both, blinkTextCursor 500ms steps(40) infinite normal;
+  max-width: 100%;
+}
+
+/* On very small screens, allow text wrap for typewriter */
+@media (max-width: 480px) {
+  .typing-container {
+    white-space: normal;
+    animation: fadeIn 1s ease-out both, blinkTextCursor 500ms steps(40) infinite normal;
+  }
 }
 
 /* Custom scrollbar */
@@ -227,14 +250,23 @@ body {
   animation: terminal-blink 1s infinite;
 }
 
-/* Hover lift effect */
-.hover-lift {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+/* Hover lift effect — only on devices that support hover */
+@media (hover: hover) {
+  .hover-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  }
 }
 
-.hover-lift:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+/* Spotlight: reduce on mobile */
+@media (max-width: 768px) {
+  #spotlight {
+    background: radial-gradient(400px circle at var(--x, 50%) var(--y, 50%), rgba(255, 255, 255, 0.03), transparent 40%);
+  }
 }
 
 /* Music equalizer bars */

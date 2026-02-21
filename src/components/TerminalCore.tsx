@@ -578,7 +578,7 @@ export default function TerminalCore({ embedded = false, onExit, initialCommand 
             ) : (
                 <div
                     ref={terminalRef}
-                    className="flex-grow overflow-y-auto p-4 font-[family-name:var(--font-fira-code)] text-sm cursor-text min-h-0 relative z-20"
+                    className="flex-grow overflow-y-auto overflow-x-auto p-4 font-[family-name:var(--font-fira-code)] text-xs md:text-sm cursor-text min-h-0 relative z-20"
                     onClick={focusInput}
                 >
                     {history.map((line, index) => (

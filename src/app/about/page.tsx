@@ -168,7 +168,7 @@ export default function AboutPage() {
                                     // academic background
                                 </div>
                                 <div className="bg-[#0a0a0a] border border-gray-800 rounded-lg p-6 hover:border-gray-700 transition-all duration-300 group cursor-default hover:bg-[#0c0c0c]">
-                                    <div className="flex justify-between items-start">
+                                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
                                         <div>
                                             <h3 className="text-lg font-medium text-white font-[family-name:var(--font-inter)]">
                                                 VIT Bhopal University
@@ -177,7 +177,7 @@ export default function AboutPage() {
                                                 Bachelor of Technology - CSE (AI &amp; ML) • GPA: 8.64/10.00
                                             </p>
                                         </div>
-                                        <span className="font-[family-name:var(--font-fira-code)] text-[11px] text-gray-500 bg-gray-900 px-2 py-1 rounded border border-gray-800">
+                                        <span className="font-[family-name:var(--font-fira-code)] text-[11px] text-gray-500 bg-gray-900 px-2 py-1 rounded border border-gray-800 self-start shrink-0">
                                             2023 - 2027
                                         </span>
                                     </div>

@@ -95,9 +95,12 @@ export async function POST(req: NextRequest) {
                             );
                         return NextResponse.json({ response: ["", ...lines, ""] });
                     }
+                } else {
+                    const errorBody = await geminiRes.text().catch(() => "unknown");
+                    console.error(`[AI] Gemini failed (${geminiRes.status}):`, errorBody);
                 }
-            } catch {
-                // Fall through to fallback
+            } catch (err) {
+                console.error("[AI] Gemini request error:", err);
             }
         }
 
@@ -136,9 +139,12 @@ export async function POST(req: NextRequest) {
                             );
                         return NextResponse.json({ response: ["", ...lines, ""] });
                     }
+                } else {
+                    const errorBody = await orRes.text().catch(() => "unknown");
+                    console.error(`[AI] OpenRouter failed (${orRes.status}):`, errorBody);
                 }
-            } catch {
-                // Fall through to static fallback
+            } catch (err) {
+                console.error("[AI] OpenRouter request error:", err);
             }
         }
 
