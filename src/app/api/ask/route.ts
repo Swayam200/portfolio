@@ -1,5 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
 
+// ── IP-based rate limiting ──────────────────────────────────────────
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
+const MAX_REQUESTS_PER_WINDOW = 15; // 15 requests per minute per IP
+
+const ipRequestMap = new Map<string, { count: number; resetAt: number }>();
+
+// Clean up stale entries every 5 minutes
+setInterval(() => {
+    const now = Date.now();
+    for (const [ip, entry] of ipRequestMap) {
+        if (now > entry.resetAt) ipRequestMap.delete(ip);
+    }
+}, 5 * 60 * 1000);
+
+function isRateLimited(ip: string): boolean {
+    const now = Date.now();
+    const entry = ipRequestMap.get(ip);
+
+    if (!entry || now > entry.resetAt) {
+        ipRequestMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+        return false;
+    }
+
+    entry.count++;
+    return entry.count > MAX_REQUESTS_PER_WINDOW;
+}
+// ────────────────────────────────────────────────────────────────────
+
 const SYSTEM_PROMPT = `You are an AI assistant embedded in Swayam Prakash Panda's portfolio website terminal. 
 Answer questions about Swayam concisely (2-5 lines max). Use plain text only — no markdown, no bold, no links.
 
@@ -46,6 +74,24 @@ Keep responses short and terminal-friendly. Prefix each line with "  " (two spac
 
 export async function POST(req: NextRequest) {
     try {
+        // Rate limiting by IP
+        const forwarded = req.headers.get("x-forwarded-for");
+        const ip = forwarded?.split(",")[0]?.trim() || req.headers.get("x-real-ip") || "unknown";
+
+        if (isRateLimited(ip)) {
+            return NextResponse.json(
+                {
+                    response: [
+                        "",
+                        "  Slow down! You're sending too many requests.",
+                        "  Please wait a minute before asking again.",
+                        "",
+                    ],
+                },
+                { status: 429 }
+            );
+        }
+
         const { query } = await req.json();
 
         if (!query || typeof query !== "string") {
@@ -76,8 +122,11 @@ export async function POST(req: NextRequest) {
                                 },
                             ],
                             generationConfig: {
-                                maxOutputTokens: 500,
+                                maxOutputTokens: 2048,
                                 temperature: 0.7,
+                                thinkingConfig: {
+                                    thinkingBudget: 0,
+                                },
                             },
                         }),
                     }
@@ -85,8 +134,14 @@ export async function POST(req: NextRequest) {
 
                 if (geminiRes.ok) {
                     const data = await geminiRes.json();
-                    const text =
-                        data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+                    // Gemini 3 Flash is a thinking model — extract the actual
+                    // response text (skip parts that only have thoughtSignature)
+                    const parts = data?.candidates?.[0]?.content?.parts || [];
+                    const text = parts
+                        .filter((p: { text?: string; thoughtSignature?: string }) => p.text && !p.thoughtSignature)
+                        .map((p: { text: string }) => p.text)
+                        .join("\n")
+                        || parts[0]?.text || "";
                     if (text) {
                         const lines = text
                             .split("\n")
@@ -122,7 +177,7 @@ export async function POST(req: NextRequest) {
                                 { role: "system", content: SYSTEM_PROMPT },
                                 { role: "user", content: query },
                             ],
-                            max_tokens: 1500,
+                            max_tokens: 500,
                             temperature: 0.7,
                         }),
                     }
@@ -130,9 +185,7 @@ export async function POST(req: NextRequest) {
 
                 if (orRes.ok) {
                     const data = await orRes.json();
-                    const msg = data?.choices?.[0]?.message;
-                    // Reasoning models may return content in reasoning field
-                    const text = msg?.content || "";
+                    const text = data?.choices?.[0]?.message?.content || "";
                     if (text) {
                         const lines = text
                             .split("\n")

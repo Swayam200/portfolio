@@ -173,7 +173,6 @@ export default function TerminalCore({ embedded = false, onExit, initialCommand 
 
                 case "resume": {
                     lines.push(out(""), out("  Downloading resume...", "text-blue-400"), out(""));
-                    // Trigger actual download
                     const link = document.createElement("a");
                     link.href = "/resume.pdf";
                     link.download = "Swayam_Prakash_Panda_Resume.pdf";
@@ -496,7 +495,49 @@ export default function TerminalCore({ embedded = false, onExit, initialCommand 
                 }
 
                 default: {
-                    lines.push(out(`  command not found: ${command}`, "text-red-400"), out('  Type "help" for available commands.'));
+                    // Auto-route unknown input to the AI assistant
+                    const fullQuery = trimmed;
+                    const regexResponse = getAIResponse(fullQuery);
+                    const isDefault = regexResponse.some((line) =>
+                        line.includes("I'm not sure how to answer")
+                    );
+
+                    if (!isDefault) {
+                        regexResponse.forEach((line) => {
+                            lines.push(out(line, line.includes("━") ? "text-blue-400" : line.startsWith("  •") ? "text-gray-300" : "text-cyan-400"));
+                        });
+                        break;
+                    }
+
+                    // Fall back to AI API
+                    lines.push(out(""), out("  Thinking...", "text-gray-500"));
+                    addLines(lines);
+                    setCmdHistory((prev) => [cmd, ...prev]);
+                    setHistoryIdx(-1);
+
+                    try {
+                        const res = await fetch("/api/ask", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ query: fullQuery }),
+                        });
+                        const data = await res.json();
+                        if (data.response && Array.isArray(data.response)) {
+                            addLines(
+                                data.response.map((line: string) =>
+                                    out(line, line.includes("━") ? "text-blue-400" : line.startsWith("  •") ? "text-gray-300" : "text-cyan-400")
+                                )
+                            );
+                        }
+                    } catch {
+                        addLines([
+                            out(""),
+                            out("  Could not reach AI. Try asking with the 'ask' command:", "text-yellow-400"),
+                            out('  Example: ask who is swayam?'),
+                            out(""),
+                        ]);
+                    }
+                    return;
                 }
             }
 
