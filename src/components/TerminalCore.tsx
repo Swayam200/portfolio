@@ -321,51 +321,11 @@ export default function TerminalCore({ embedded = false, onExit, initialCommand 
                 }
 
                 case "ask": {
-                    // First try regex-based local matching (instant)
                     const regexResponse = getAIResponse(args);
-                    const isDefaultFallback = regexResponse.some((line) =>
-                        line.includes("I'm not sure how to answer")
-                    );
-
-                    if (!isDefaultFallback) {
-                        // Regex matched — use local response
-                        regexResponse.forEach((line) => {
-                            lines.push(out(line, line.includes("━") ? "text-blue-400" : line.startsWith("  •") ? "text-gray-300" : "text-cyan-400"));
-                        });
-                        break;
-                    }
-
-                    // Regex didn't match — fall back to AI API
-                    lines.push(out(""), out("  Thinking...", "text-gray-500"));
-                    addLines(lines);
-                    setCmdHistory((prev) => [cmd, ...prev]);
-                    setHistoryIdx(-1);
-
-                    try {
-                        const res = await fetch("/api/ask", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ query: args }),
-                        });
-                        const data = await res.json();
-                        if (data.response && Array.isArray(data.response)) {
-                            addLines(
-                                data.response.map((line: string) =>
-                                    out(line, line.includes("━") ? "text-blue-400" : line.startsWith("  •") ? "text-gray-300" : "text-cyan-400")
-                                )
-                            );
-                        }
-                    } catch {
-                        addLines([
-                            out(""),
-                            out("  Could not reach AI. Try a more specific question:", "text-yellow-400"),
-                            out('  • "Who is Swayam?"'),
-                            out('  • "What are his skills?"'),
-                            out('  • "Tell me about his research"'),
-                            out(""),
-                        ]);
-                    }
-                    return;
+                    regexResponse.forEach((line) => {
+                        lines.push(out(line, line.includes("━") ? "text-blue-400" : line.startsWith("  •") ? "text-gray-300" : "text-cyan-400"));
+                    });
+                    break;
                 }
 
                 case "echo": {
@@ -495,49 +455,12 @@ export default function TerminalCore({ embedded = false, onExit, initialCommand 
                 }
 
                 default: {
-                    // Auto-route unknown input to the AI assistant
                     const fullQuery = trimmed;
                     const regexResponse = getAIResponse(fullQuery);
-                    const isDefault = regexResponse.some((line) =>
-                        line.includes("I'm not sure how to answer")
-                    );
-
-                    if (!isDefault) {
-                        regexResponse.forEach((line) => {
-                            lines.push(out(line, line.includes("━") ? "text-blue-400" : line.startsWith("  •") ? "text-gray-300" : "text-cyan-400"));
-                        });
-                        break;
-                    }
-
-                    // Fall back to AI API
-                    lines.push(out(""), out("  Thinking...", "text-gray-500"));
-                    addLines(lines);
-                    setCmdHistory((prev) => [cmd, ...prev]);
-                    setHistoryIdx(-1);
-
-                    try {
-                        const res = await fetch("/api/ask", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ query: fullQuery }),
-                        });
-                        const data = await res.json();
-                        if (data.response && Array.isArray(data.response)) {
-                            addLines(
-                                data.response.map((line: string) =>
-                                    out(line, line.includes("━") ? "text-blue-400" : line.startsWith("  •") ? "text-gray-300" : "text-cyan-400")
-                                )
-                            );
-                        }
-                    } catch {
-                        addLines([
-                            out(""),
-                            out("  Could not reach AI. Try asking with the 'ask' command:", "text-yellow-400"),
-                            out('  Example: ask who is swayam?'),
-                            out(""),
-                        ]);
-                    }
-                    return;
+                    regexResponse.forEach((line) => {
+                        lines.push(out(line, line.includes("━") ? "text-blue-400" : line.startsWith("  •") ? "text-gray-300" : "text-cyan-400"));
+                    });
+                    break;
                 }
             }
 

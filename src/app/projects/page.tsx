@@ -40,7 +40,7 @@ const projects: Project[] = [
             "Hybrid Web + Desktop application for chemical equipment parameter visualisation. Built with Django REST, React frontend, and PyQt5 desktop client with pandas-driven data pipelines.",
         tech: ["Python", "Django REST", "React", "PyQt5", "pandas"],
         github: "https://github.com/Swayam200/carbon-sleuth",
-        live: null,
+        live: "https://carbon-sleuth.vercel.app/",
         status: "completed",
         stars: 1,
         featured: true,
@@ -445,22 +445,9 @@ export default function ProjectsPage() {
                                     </button>
                                 </div>
 
-                                {/* Project image placeholder */}
-                                <div className={`relative w-full aspect-video rounded-lg border ${colorMap[expandedProject.color] || "border-gray-700"} bg-gradient-to-br from-transparent to-transparent overflow-hidden mb-6 flex-shrink-0`}>
-                                    <div className={`absolute inset-0 bg-gradient-to-br ${colorMap[expandedProject.color]?.split(" ")[0] || "from-gray-500/20"} to-transparent`} />
-                                    <div className="absolute inset-0 flex items-center justify-center">
-                                        <div className="text-center">
-                                            <div className="text-4xl mb-2 opacity-30">
-                                                {expandedProject.status === "completed" ? "✓" : expandedProject.status === "in-progress" ? "⚡" : "📦"}
-                                            </div>
-                                            <div className="text-xs font-[family-name:var(--font-fira-code)] text-gray-500">
-                                                screenshot placeholder
-                                            </div>
-                                            <div className="text-[10px] font-[family-name:var(--font-fira-code)] text-gray-600 mt-1">
-                                                {expandedProject.image}
-                                            </div>
-                                        </div>
-                                    </div>
+                                {/* Project image */}
+                                <div className={`relative w-full aspect-video rounded-lg border ${colorMap[expandedProject.color] || "border-gray-700"} bg-black overflow-hidden mb-6 flex-shrink-0`}>
+                                    <img src={expandedProject.image} alt={expandedProject.name} className="w-full h-full object-contain opacity-90 hover:opacity-100 transition-opacity" loading="lazy" decoding="async" />
                                 </div>
 
                                 {/* Project details */}
