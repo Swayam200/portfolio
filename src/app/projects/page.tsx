@@ -159,6 +159,34 @@ const projects: Project[] = [
         image: "/projects/stt.png",
         color: "yellow",
     },
+    {
+        id: 11,
+        name: "mansik",
+        description:
+            "AI-powered mental wellness companion built with React Native Expo, Express, MongoDB, and Gemini. Includes empathetic chat, encrypted journaling, crisis detection, breathing exercises, mood insights, and a three-tier emotional memory system.",
+        tech: ["React Native", "Expo", "Express", "MongoDB", "Gemini AI"],
+        github: "https://github.com/Tanq567300/Mansik",
+        live: "https://mansik.vercel.app",
+        status: "completed",
+        stars: 3,
+        featured: true,
+        image: "/projects/mansik-placeholder.svg",
+        color: "green",
+    },
+    {
+        id: 12,
+        name: "khel-saarthi",
+        description:
+            "Mobile-first sports community platform connecting grassroots athletes with local organizers. Built with Expo, Express, MongoDB, Socket.IO, and Cloudinary for event discovery, host workflows, registrations, chat, and profile management.",
+        tech: ["React Native", "Expo", "Express", "MongoDB", "Socket.IO", "Cloudinary"],
+        github: "https://github.com/Madhuram2901/Khel-Saarthi",
+        live: null,
+        status: "completed",
+        stars: 1,
+        featured: true,
+        image: "/projects/khel_saarthi.png",
+        color: "cyan",
+    },
 ];
 
 const statusColors: Record<string, string> = {
