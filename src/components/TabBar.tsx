@@ -6,22 +6,21 @@ interface Tab {
     name: string;
     icon: string;
     iconColor: string;
-    href: string;
 }
 
 const pageTabs: Record<string, Tab[]> = {
     "/about": [
-        { name: "README.md", icon: "📄", iconColor: "text-blue-400", href: "/about" },
-        { name: "skills.js", icon: "📜", iconColor: "text-yellow-400", href: "/about" },
+        { name: "README.md", icon: "📄", iconColor: "text-blue-400" },
+        { name: "skills.js", icon: "📜", iconColor: "text-yellow-400" },
     ],
     "/projects": [
-        { name: "projects.json", icon: "📦", iconColor: "text-yellow-400", href: "/projects" },
+        { name: "projects.json", icon: "📦", iconColor: "text-yellow-400" },
     ],
     "/achievements": [
-        { name: "ACHIEVEMENTS.md", icon: "🏆", iconColor: "text-yellow-400", href: "/achievements" },
+        { name: "ACHIEVEMENTS.md", icon: "🏆", iconColor: "text-yellow-400" },
     ],
     "/contact": [
-        { name: "terminal", icon: "⬛", iconColor: "text-green-400", href: "/contact" },
+        { name: "terminal", icon: "⬛", iconColor: "text-green-400" },
     ],
 };
 

@@ -63,7 +63,7 @@ The terminal's `weather` command uses the **Open-Meteo API** — a free, open-so
 
 ### How It Works
 - Endpoint: `https://api.open-meteo.com/v1/forecast`
-- Coordinates are set to Bhopal, India (lat: 23.26, lon: 77.41)
+- Coordinates are set to Daman, India (lat: 20.42, lon: 72.85)
 - No signup, no API key, no rate limits for reasonable usage
 
 ### Changing Location
@@ -103,9 +103,9 @@ case "your-command": {
 
 Then add the command name to `availableCommands` in `src/lib/terminal-data.ts` for tab-completion.
 
-### AI Responses
+### Assistant Responses
 
-The `ask` command uses pattern-matching in `src/lib/terminal-data.ts`. To add new knowledge:
+The `ask` command uses curated pattern-matching and local profile-fact search in `src/lib/terminal-data.ts`. Unknown questions are sent to `/api/chat`, which can use Gemini when `GEMINI_API_KEY` or `GOOGLE_GENERATIVE_AI_API_KEY` is configured.
 
 ```tsx
 {
@@ -117,7 +117,7 @@ The `ask` command uses pattern-matching in `src/lib/terminal-data.ts`. To add ne
 },
 ```
 
-Add entries to the `aiEntries` array in the same file.
+Add entries to the `aiEntries` array or update shared facts in `src/lib/profile-data.ts`.
 
 ---
 
@@ -130,11 +130,12 @@ Edit the `projects` array in `src/app/projects/page.tsx`:
     name: "your-project",
     description: "Short description",
     tech: ["React", "TypeScript"],
-    stars: 42,
-    forks: 10,
-    status: "active",       // "active" | "archived" | "wip"
+    status: "completed",    // "completed" | "in-progress" | "archived"
+    featured: true,
+    date: "May 2026",
+    highlights: ["Impact point"],
     image: "/projects/your-project.png",
-    color: "blue",          // "blue" | "green" | "purple" | "orange" | "red" | "cyan"
+    color: "blue",          // "blue" | "green" | "purple" | "yellow" | "red" | "cyan"
 }
 ```
 
@@ -151,16 +152,17 @@ Recommended size: 800×450px (16:9 ratio).
 
 ## Experience / About Page
 
-Edit `src/app/about/page.tsx`:
+Edit `src/lib/profile-data.ts`:
 - **Experiences**: Modify the `experiences` array
 - **Skills**: Modify the `skillCategories` array
-- **Education**: Edit the education section JSX directly
+- **Education**: Modify the `education` array
+- **Publications**: Modify the `publications` array
 
 ---
 
 ## Achievements
 
-Edit `src/app/achievements/page.tsx`:
+Edit `src/lib/profile-data.ts`:
 - Modify the `achievements` array with your own entries
 
 ---
@@ -208,7 +210,16 @@ npx next build
 
 ### Environment Variables
 
-No environment variables are required. The weather API is free and keyless.
+No environment variables are required for the core portfolio. The weather API is free and keyless.
+
+Optional assistant fallback:
+
+```bash
+GEMINI_API_KEY=your_key
+# or
+GOOGLE_GENERATIVE_AI_API_KEY=your_key
+GEMINI_MODEL=gemini-1.5-flash
+```
 
 ---
 
@@ -246,7 +257,8 @@ portfolio/
 │   ├── context/
 │   │   └── TerminalContext.tsx ← Global terminal open/close state
 │   └── lib/
-│       └── terminal-data.ts   ← Fortunes, cowsay, AI, neofetch data
+│       ├── profile-data.ts    ← Shared profile, projects, skills, achievements
+│       └── terminal-data.ts   ← Fortunes, terminal assistant, neofetch data
 └── package.json
 ```
 
@@ -265,8 +277,8 @@ portfolio/
 | `skills` | Technical skills (code format) |
 | `projects` | Project list |
 | `neofetch` | ASCII system info |
-| `ask <query>` | AI-powered Q&A about Swayam |
-| `weather` | Live weather in Bhopal |
+| `ask <query>` | Curated Q&A plus optional AI fallback |
+| `weather` | Live weather in Daman |
 | `fortune` | Random dev quote |
 | `cowsay <msg>` | ASCII cow says your message |
 | `snake` | Play Snake game |

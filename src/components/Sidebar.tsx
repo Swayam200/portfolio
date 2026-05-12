@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { profile } from "@/lib/profile-data";
 
 const navItems = [
     { label: "~/home", href: "/" },
@@ -18,7 +19,7 @@ export default function Sidebar() {
         <aside className="hidden md:flex w-64 flex-shrink-0 p-4 md:p-8 border-r border-gray-800 flex-col justify-between bg-[#050505] z-30">
             <div>
                 <h1 className="text-2xl font-light tracking-tight mb-2 text-white">
-                    Swayam Prakash Panda
+                    {profile.name}
                 </h1>
                 <p className="text-xs text-gray-400 font-mono mb-12">
                     B.Tech CSE (AI &amp; ML)
@@ -55,7 +56,7 @@ export default function Sidebar() {
 
             <div className="flex space-x-4 text-gray-600 mt-8 md:mt-0">
                 <a
-                    href="https://github.com/Swayam200"
+                    href={profile.github}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="hover:text-white transition-colors"
@@ -70,7 +71,7 @@ export default function Sidebar() {
                     </svg>
                 </a>
                 <a
-                    href="https://www.linkedin.com/in/swayam200"
+                    href={profile.linkedin}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="hover:text-white transition-colors"
@@ -81,14 +82,15 @@ export default function Sidebar() {
                     </svg>
                 </a>
                 <a
-                    href="https://twitter.com/swayam200"
+                    href={profile.website}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="hover:text-white transition-colors"
                 >
-                    <span className="sr-only">Twitter</span>
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                    <span className="sr-only">Website</span>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.7} d="M12 3a9 9 0 100 18 9 9 0 000-18z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.7} d="M3.6 9h16.8M3.6 15h16.8M12 3c2.1 2.4 3.2 5.4 3.2 9S14.1 18.6 12 21c-2.1-2.4-3.2-5.4-3.2-9S9.9 5.4 12 3z" />
                     </svg>
                 </a>
             </div>

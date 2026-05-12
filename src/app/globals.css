@@ -13,10 +13,7 @@
   --animate-grain: grain 8s steps(10) infinite;
   --animate-typewriter: typewriter 3s steps(40) 1s 1 normal both;
   --animate-blink-cursor: blinkTextCursor 500ms steps(40) infinite normal;
-  --animate-pulse-slow: pulse-slow 3s ease-in-out infinite;
   --animate-fade-in: fadeIn 0.6s ease-out forwards;
-  --animate-slide-up: slideUp 0.5s ease-out forwards;
-  --animate-slide-in-left: slideInLeft 0.4s ease-out forwards;
 
   @keyframes grain {
 
@@ -82,18 +79,6 @@
     }
   }
 
-  @keyframes pulse-slow {
-
-    0%,
-    100% {
-      opacity: 1;
-    }
-
-    50% {
-      opacity: 0.5;
-    }
-  }
-
   @keyframes fadeIn {
     from {
       opacity: 0;
@@ -104,29 +89,6 @@
     }
   }
 
-  @keyframes slideUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes slideInLeft {
-    from {
-      opacity: 0;
-      transform: translateX(-20px);
-    }
-
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
 }
 
 /* Grain overlay */
@@ -225,11 +187,6 @@ body {
   color: #e5e5e5;
   font-family: "Inter", sans-serif;
   min-height: 100vh;
-}
-
-/* Page transition wrapper — instant, no animation delay */
-.page-transition {
-  /* No animation — immediate render for snappiest feel */
 }
 
 /* Terminal cursor blink */

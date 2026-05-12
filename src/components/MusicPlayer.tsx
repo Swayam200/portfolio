@@ -4,7 +4,6 @@ import { useState, useRef, useEffect, useCallback } from "react";
 
 export default function MusicPlayer() {
     const [isPlaying, setIsPlaying] = useState(false);
-    const [isLoaded, setIsLoaded] = useState(false);
     const [showTooltip, setShowTooltip] = useState(false);
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -15,12 +14,6 @@ export default function MusicPlayer() {
         audio.volume = 0.3;
         audio.preload = "auto";
         audioRef.current = audio;
-
-        audio.addEventListener("canplaythrough", () => setIsLoaded(true));
-        audio.addEventListener("error", () => {
-            // If file doesn't exist yet, still show the player
-            setIsLoaded(true);
-        });
 
         return () => {
             audio.pause();

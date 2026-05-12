@@ -53,7 +53,22 @@ export default function SnakeGame({ onExit }: SnakeGameProps) {
             };
         } while (currentSnake.some((s) => s.x === newFood.x && s.y === newFood.y));
         return newFood;
-    }, []);
+    }, [GRID_H, GRID_W]);
+
+    // Reset with correct grid dimensions
+    const resetGame = useCallback(() => {
+        const initial = [
+            { x: Math.floor(GRID_W / 2), y: Math.floor(GRID_H / 2) },
+            { x: Math.floor(GRID_W / 2) - 1, y: Math.floor(GRID_H / 2) },
+            { x: Math.floor(GRID_W / 2) - 2, y: Math.floor(GRID_H / 2) },
+        ];
+        setSnake(initial);
+        setFood(spawnFood(initial));
+        dirRef.current = "right";
+        setGameOver(false);
+        setScore(0);
+        setStarted(false);
+    }, [GRID_W, GRID_H, spawnFood]);
 
     // Auto-focus
     useEffect(() => {
@@ -116,7 +131,7 @@ export default function SnakeGame({ onExit }: SnakeGameProps) {
         }, TICK_MS);
 
         return () => clearInterval(interval);
-    }, [gameOver, started, food, spawnFood]);
+    }, [gameOver, started, food, spawnFood, GRID_W, GRID_H]);
 
     const handleKeyDown = useCallback(
         (e: React.KeyboardEvent) => {
@@ -150,7 +165,7 @@ export default function SnakeGame({ onExit }: SnakeGameProps) {
                 dirRef.current = "right";
             }
         },
-        [gameOver, onExit, score, started, spawnFood]
+        [gameOver, onExit, resetGame, score, started]
     );
 
     // Touch/swipe handlers for mobile
@@ -201,21 +216,6 @@ export default function SnakeGame({ onExit }: SnakeGameProps) {
         else if (newDir === "left" && dir !== "right") dirRef.current = "left";
         else if (newDir === "right" && dir !== "left") dirRef.current = "right";
     }, [started]);
-
-    // Reset with correct grid dimensions
-    const resetGame = useCallback(() => {
-        const initial = [
-            { x: Math.floor(GRID_W / 2), y: Math.floor(GRID_H / 2) },
-            { x: Math.floor(GRID_W / 2) - 1, y: Math.floor(GRID_H / 2) },
-            { x: Math.floor(GRID_W / 2) - 2, y: Math.floor(GRID_H / 2) },
-        ];
-        setSnake(initial);
-        setFood(spawnFood(initial));
-        dirRef.current = "right";
-        setGameOver(false);
-        setScore(0);
-        setStarted(false);
-    }, [GRID_W, GRID_H, spawnFood]);
 
     // Build grid as JSX
     const renderGrid = () => {

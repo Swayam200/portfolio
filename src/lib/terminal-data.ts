@@ -1,3 +1,14 @@
+import {
+    achievements,
+    education,
+    experiences,
+    profile,
+    projects,
+    publications,
+    searchableFacts,
+    skillCategories,
+} from "@/lib/profile-data";
+
 // Fortune quotes
 export const fortunes: string[] = [
     '"Any fool can write code that a computer can understand. Good programmers write code that humans can understand." — Martin Fowler',
@@ -72,15 +83,15 @@ export function getNeofetch(uptimeStr: string): string[] {
         "      ███████╗██████╗      swayam@portfolio",
         "      ██╔════╝██╔══██╗     ─────────────────",
         "      ███████╗██████╔╝     OS: SwayamOS v2.0.0",
-        "      ╚════██║██╔═══╝      Host: swayampanda.dev",
+        "      ╚════██║██╔═══╝      Host: swayam200.me",
         "      ███████║██║          Kernel: Next.js 16",
         `      ╚══════╝╚═╝          Uptime: ${uptimeStr}`,
         "                            Shell: zsh 5.9",
         "                            Terminal: SwayamTerm v2.0",
         "                            Theme: tokyo-night",
-        "                            Repos: 46 (github)",
+        `                            Projects: ${projects.length} featured`,
         "                            CPU: BERT-base @ ∞GHz",
-        "                            GPA: 8.64 / 10.00",
+        `                            CGPA: ${profile.cgpa}`,
         "",
         "      ● ● ● ● ● ● ● ●",
         "",
@@ -145,6 +156,36 @@ interface AIEntry {
     response: string[];
 }
 
+export interface LocalAIResponse {
+    lines: string[];
+    matched: boolean;
+    source: "curated" | "search" | "suggestions";
+}
+
+const skillsLines = skillCategories.map((category) => {
+    const label = category.label.replace("// ", "");
+    return `  ${label.padEnd(16)} -> ${category.skills.join(", ")}`;
+});
+
+const projectLines = projects.flatMap((project) => [
+    `  -> ${project.name} (${project.date})`,
+    `     ${project.description}`,
+]);
+
+const experienceLines = experiences.flatMap((experience) => [
+    `  -> ${experience.role} @ ${experience.company}`,
+    `     ${experience.period} | ${experience.location}`,
+]);
+
+const publicationLines = publications.flatMap((publication) => [
+    `  -> ${publication.title}`,
+    `     ${publication.status} | ${publication.venue} | ${publication.date}`,
+]);
+
+const certificationLines = achievements
+    .filter((achievement) => achievement.type === "certification")
+    .map((achievement) => `  -> ${achievement.title} (${achievement.date})`);
+
 const aiEntries: AIEntry[] = [
     {
         patterns: [
@@ -155,15 +196,14 @@ const aiEntries: AIEntry[] = [
             /^who$/i,
         ],
         response: [
-            "  Swayam Prakash Panda",
+            `  ${profile.name}`,
             "  ━━━━━━━━━━━━━━━━━━━━",
-            "  B.Tech CSE (AI & ML) student at VIT Bhopal (2023-2027).",
-            "  GPA: 8.64/10.00",
+            `  ${profile.title}`,
+            `  CGPA: ${profile.cgpa} | Expected graduation: ${profile.graduation}`,
             "",
-            "  IEEE-published researcher in cross-platform misinformation",
-            "  detection. Experienced in NLP, transfer learning, and",
-            "  full-stack development. Club Coordinator at GfG VIT Bhopal",
-            "  and Technical Team Lead at VITB AI Innovators Hub.",
+            "  IEEE-published researcher with experience in NLP,",
+            "  computer vision, RAG applications, and full-stack systems.",
+            "  Currently interning with FOSSEE at IIT Bombay.",
         ],
     },
     {
@@ -173,12 +213,7 @@ const aiEntries: AIEntry[] = [
         response: [
             "  Technical Skills",
             "  ━━━━━━━━━━━━━━━",
-            "  Languages   → Python, C++, TypeScript, JavaScript",
-            "  ML & NLP    → BERT, scikit-learn, pandas, YOLOv8",
-            "  Frontend    → React, Next.js, Tailwind CSS",
-            "  Backend     → Node.js, Express, FastAPI, Django",
-            "  Vision      → OpenCV, PyQt5, Feature Extraction",
-            "  Tools       → Git, PostgreSQL, GCP, AWS, MongoDB",
+            ...skillsLines,
         ],
     },
     {
@@ -188,11 +223,8 @@ const aiEntries: AIEntry[] = [
         response: [
             "  Education",
             "  ━━━━━━━━━",
-            "  VIT Bhopal University",
-            "  B.Tech Computer Science & Engineering",
-            "  Specialization: AI & Machine Learning",
-            "  May 2023 — May 2027 • GPA: 8.64/10.00",
-            "  Bhopal, India",
+            ...education.map((item) => `  -> ${item.degree} | ${item.institution} | ${item.period}`),
+            `  Current CGPA: ${profile.cgpa}`,
         ],
     },
     {
@@ -200,137 +232,119 @@ const aiEntries: AIEntry[] = [
         response: [
             "  Contact Information",
             "  ━━━━━━━━━━━━━━━━━━",
-            "  Email:     swayam.panda200@gmail.com",
-            "  GitHub:    github.com/Swayam200",
-            "  LinkedIn:  linkedin.com/in/swayam200",
-            "  Twitter:   twitter.com/swayam200",
+            `  Email:    ${profile.email}`,
+            "  GitHub:   github.com/Swayam200",
+            "  LinkedIn: linkedin.com/in/swayam200",
+            "  Website:  swayam200.me",
             "",
-            "  Based in Daman, India • Studying at VIT Bhopal",
-            "  Open to opportunities and collaborations!",
+            `  Based in ${profile.location} | Open to opportunities and collaborations.`,
         ],
     },
     {
-        patterns: [/project|work|portfolio|built|made|create/i],
+        patterns: [/project|work|portfolio|built|made|create|pdfchat|rag|khel|leptospirosis|goldfish/i],
         response: [
-            "  Projects & Work",
-            "  ━━━━━━━━━━━━━━━",
-            "  → BERT Misinformation Detection (IEEE paper)",
-            "  → Carbon Sleuth (Django + React + PyQt5)",
-            "  → Goldfish Password Generator (OpenCV + Crypto)",
-            "  → Leptospirosis Risk Predictor (ML)",
-            "  → Darzi AI Resume Suite (TypeScript, 75+ team)",
-            "  → Blood Cell Detection (YOLOv8)",
-            "  → Abusive Language Censoring API (FastAPI)",
+            "  Featured Projects",
+            "  ━━━━━━━━━━━━━━━━━",
+            ...projectLines,
             "",
-            '  Check out the Projects page or type "projects" for details!',
+            '  Visit /projects or type "projects" for links and details.',
         ],
     },
     {
-        patterns: [/experience|intern|company|work.*at|job.*history|employ/i],
+        patterns: [/experience|intern|company|work.*at|job.*history|employ|fossee|techmaster|gfg/i],
         response: [
             "  Professional Experience",
             "  ━━━━━━━━━━━━━━━━━━━━━━",
-            "  • GfG VIT Bhopal — Club Coordinator (Dec 2025-Present)",
-            "  • VITB AI Innovators Hub — Tech Lead (Sep 2025-Present)",
-            "  • IIT Ropar — Winter Intern (Dec 2025-Jan 2026)",
-            "  • IEEE RCSM 2025 — Published researcher",
+            ...experienceLines,
             "",
-            "  Visit the About page for the full timeline!",
+            "  Visit the About page for the full timeline.",
         ],
     },
     {
-        patterns: [/research|paper|publication|ieee|bert|misinformation/i],
+        patterns: [/research|paper|publication|ieee|bert|misinformation|assic|trng|entropy/i],
         response: [
             "  Research & Publications",
             "  ━━━━━━━━━━━━━━━━━━━━━━",
-            "  IEEE RCSM 2025 (SCOPUS indexed, IEEE Xplore)",
-            "  'Evaluating the Portability of BERT-based",
-            "  Misinformation Detection from Twitter to Bluesky'",
+            ...publicationLines,
             "",
-            "  • Baseline F1: 0.64 (LIAR dataset)",
-            "  • Zero-shot transfer to Bluesky: F1 0.73",
-            "  • After fine-tuning: F1 0.997",
-            "",
-            "  Presented at MANIT Bhopal conference.",
+            "  Research spans cross-platform misinformation detection and",
+            "  true random number generation using biological entropy.",
         ],
     },
     {
-        patterns: [/interest|hobby|passion|like|enjoy|fun|free.*time/i],
+        patterns: [/interest|hobby|passion|like|enjoy|free.*time/i],
         response: [
-            "  Interests & Hobbies",
-            "  ━━━━━━━━━━━━━━━━━━",
-            "  • NLP research & experimentation",
-            "  • Full-stack development",
-            "  • Computer vision projects",
-            "  • Competitive programming (Codeforces)",
-            "  • Hackathons & building prototypes",
-            "  • Reading",
+            "  Interests",
+            "  ━━━━━━━━━",
+            "  -> Hackathons",
+            "  -> Reading",
+            "  -> Product design",
+            "  -> Open source contributions",
+            "  -> Machine learning systems",
         ],
     },
     {
         patterns: [/locat|where.*live|where.*from|city|country|place/i],
         response: [
-            "  From Daman, Daman and Diu, India",
-            "  Currently studying at VIT Bhopal University",
-            "  Open to remote & relocation opportunities",
+            `  From ${profile.location}`,
+            "  Currently studying at VIT Bhopal University.",
+            "  Open to remote opportunities and collaborations.",
         ],
     },
     {
         patterns: [/github|git|repo|open.?source/i],
         response: [
             "  GitHub: github.com/Swayam200",
-            "  46 repositories • 8 followers",
-            "  Notable: goldfish_password_generator (2★),",
-            "  Leptospirosis-Predictor (5★), carbon-sleuth (1★)",
+            "  Current featured repositories:",
+            ...projects.map((project) => `  -> ${project.name}: ${project.github}`),
         ],
     },
     {
         patterns: [/linkedin|professional/i],
         response: [
             "  LinkedIn: linkedin.com/in/swayam200",
-            "  500+ connections",
-            "  Connect with Swayam for professional networking.",
+            "  Connect with Swayam for internships, research,",
+            "  full-stack work, and ML systems collaboration.",
         ],
     },
     {
-        patterns: [/certif/i],
+        patterns: [/certif|certificate/i],
         response: [
             "  Certifications",
             "  ━━━━━━━━━━━━━━",
-            "  • Google Data Analytics Professional Certificate (Jul 2025)",
-            "  • Cloud Computing — NPTEL (May 2025)",
-            "  • Applied Machine Learning in Python — UMich (Dec 2024)",
+            ...certificationLines,
         ],
     },
     {
         patterns: [/hello|hi|hey|sup|what.*up|howdy|greet/i],
         response: [
-            "  Hey there! 👋",
-            "  I'm Swayam's portfolio AI. Ask me anything about him!",
+            "  Hey there!",
+            "  I'm Swayam's portfolio assistant. Ask me anything about him.",
             '  Try: "What skills does Swayam have?"',
-            '  Or: "Tell me about his research"',
+            '  Or: "Tell me about PDFChat"',
         ],
     },
     {
         patterns: [/thank|thanks|thx|nice|cool|awesome|great|good/i],
         response: [
-            "  Glad I could help!",
+            "  Glad I could help.",
             "  Feel free to ask more questions or explore the terminal.",
-            '  Type "help" to see all available commands!',
+            '  Type "help" to see all available commands.',
         ],
     },
     {
         patterns: [/age|old|born|birthday|year/i],
         response: [
-            "  Swayam is a pre-final year student (Class of 2027).",
-            "  Young, ambitious, and already an IEEE-published researcher!",
+            "  Swayam is an undergraduate B.Tech student in the class of 2027.",
+            "  His expected graduation is May 2027.",
         ],
     },
     {
         patterns: [/resume|cv/i],
         response: [
             '  Type "resume" to download Swayam\'s resume.',
-            "  It includes his full experience, skills, and education.",
+            "  It includes his updated experience, projects, skills,",
+            "  publications, and education.",
         ],
     },
     {
@@ -338,39 +352,138 @@ const aiEntries: AIEntry[] = [
         response: [
             "  Academic Performance",
             "  ━━━━━━━━━━━━━━━━━━━",
-            "  GPA: 8.64 / 10.00",
-            "  VIT Bhopal University — B.Tech CSE (AI & ML)",
+            `  CGPA: ${profile.cgpa}`,
+            "  VIT Bhopal University - B.Tech CSE (AI & ML)",
         ],
     },
 ];
 
-export function getAIResponse(query: string): string[] {
+const stopWords = new Set([
+    "about",
+    "after",
+    "again",
+    "also",
+    "anything",
+    "does",
+    "have",
+    "tell",
+    "that",
+    "the",
+    "their",
+    "there",
+    "this",
+    "what",
+    "when",
+    "where",
+    "which",
+    "with",
+    "you",
+    "your",
+    "swayam",
+]);
+
+function getSearchTerms(query: string) {
+    return query
+        .toLowerCase()
+        .replace(/[^a-z0-9+\s.-]/g, " ")
+        .split(/\s+/)
+        .filter((term) => term.length > 2 && !stopWords.has(term));
+}
+
+function wrapLine(text: string, width = 78) {
+    const words = text.split(/\s+/);
+    const lines: string[] = [];
+    let current = "";
+
+    for (const word of words) {
+        if (`${current} ${word}`.trim().length > width && current) {
+            lines.push(current);
+            current = word;
+        } else {
+            current = `${current} ${word}`.trim();
+        }
+    }
+
+    if (current) lines.push(current);
+    return lines;
+}
+
+function buildRelatedFactResponse(query: string): string[] | null {
+    const terms = getSearchTerms(query);
+    if (terms.length === 0) return null;
+
+    const ranked = searchableFacts
+        .map((fact) => {
+            const lower = fact.toLowerCase();
+            const score = terms.reduce((total, term) => total + (lower.includes(term) ? 1 : 0), 0);
+            return { fact, score };
+        })
+        .filter((item) => item.score > 0)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 5);
+
+    if (ranked.length === 0) return null;
+
+    return [
+        "",
+        "  Related Profile Facts",
+        "  ━━━━━━━━━━━━━━━━━━━━━",
+        ...ranked.flatMap((item) => wrapLine(item.fact).map((line) => `  -> ${line}`)),
+        "",
+    ];
+}
+
+export function getLocalAIResponse(query: string): LocalAIResponse {
     const trimmed = query.trim();
     if (!trimmed) {
-        return ['  Please ask a question! Try: "ask who is swayam?"'];
+        return {
+            lines: ['  Please ask a question. Try: "ask who is swayam?"'],
+            matched: true,
+            source: "suggestions",
+        };
     }
 
     for (const entry of aiEntries) {
         for (const pattern of entry.patterns) {
             if (pattern.test(trimmed)) {
-                return ["", ...entry.response, ""];
+                return {
+                    lines: ["", ...entry.response, ""],
+                    matched: true,
+                    source: "curated",
+                };
             }
         }
     }
 
-    return [
-        "",
-        "  I'm not sure how to answer that specific question.",
-        "  Here are some things you can ask me:",
-        "",
-        '  • "Who is Swayam?"',
-        '  • "What are his skills?"',
-        '  • "Where does he study?"',
-        '  • "How can I contact him?"',
-        '  • "What projects has he built?"',
-        '  • "What are his interests?"',
-        "",
-    ];
+    const relatedFacts = buildRelatedFactResponse(trimmed);
+    if (relatedFacts) {
+        return {
+            lines: relatedFacts,
+            matched: false,
+            source: "search",
+        };
+    }
+
+    return {
+        lines: [
+            "",
+            "  I do not have a confident local answer for that yet.",
+            "  Here are some things you can ask me:",
+            "",
+            '  -> "Who is Swayam?"',
+            '  -> "What are his skills?"',
+            '  -> "Tell me about PDFChat"',
+            '  -> "What research has he published?"',
+            '  -> "How can I contact him?"',
+            "",
+        ],
+        matched: false,
+        source: "suggestions",
+    };
+}
+
+export function getAIResponse(query: string): string[] {
+    return getLocalAIResponse(query).lines;
 }
 
 // Available commands for tab completion
@@ -409,5 +522,4 @@ export const availableCommands = [
     "theme",
     "rm",
     "grep",
-    "whoami",
 ];

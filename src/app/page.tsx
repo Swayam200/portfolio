@@ -2,6 +2,7 @@
 
 import PageTransition from "@/components/PageTransition";
 import { useTerminal } from "@/context/TerminalContext";
+import { profile } from "@/lib/profile-data";
 
 export default function Home() {
   const { open } = useTerminal();
@@ -42,7 +43,7 @@ export default function Home() {
               <div className="pl-8">
                 <span className="text-red-400">this</span>
                 <span className="text-gray-300">.name = </span>
-                <span className="text-green-300">&apos;Swayam Prakash Panda&apos;</span>
+                <span className="text-green-300">&apos;{profile.name}&apos;</span>
                 <span className="text-gray-300">;</span>
               </div>
             </div>
@@ -53,7 +54,7 @@ export default function Home() {
               <div className="pl-8">
                 <span className="text-red-400">this</span>
                 <span className="text-gray-300">.role = </span>
-                <span className="text-green-300">&apos;AI &amp; ML Researcher&apos;</span>
+                <span className="text-green-300">&apos;ML Systems + Full-Stack Builder&apos;</span>
                 <span className="text-gray-300">;</span>
               </div>
             </div>
@@ -66,9 +67,9 @@ export default function Home() {
                 <span className="text-gray-300">.skills = [</span>
                 <span className="text-green-300">&apos;Python&apos;</span>
                 <span className="text-gray-300">, </span>
-                <span className="text-green-300">&apos;BERT&apos;</span>
+                <span className="text-green-300">&apos;RAG&apos;</span>
                 <span className="text-gray-300">, </span>
-                <span className="text-green-300">&apos;React&apos;</span>
+                <span className="text-green-300">&apos;Plotly&apos;</span>
                 <span className="text-gray-300">];</span>
               </div>
             </div>
@@ -96,7 +97,7 @@ export default function Home() {
               <div className="pl-8 w-full">
                 <span className="text-purple-400">return </span>
                 <span className="typing-container text-green-300">
-                  &quot;Let&apos;s build and research the future together.&quot;
+                  &quot;Building ML systems, RAG apps, and useful web platforms.&quot;
                 </span>
               </div>
             </div>
@@ -143,7 +144,7 @@ export default function Home() {
               <span className="flex items-center">
                 <span className="w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse" />
                 <span className="hidden sm:inline">Available for hire</span>
-                <span className="sm:hidden">Hiring</span>
+                <span className="sm:hidden">Open</span>
               </span>
               <span className="hidden sm:inline">utf-8</span>
             </div>

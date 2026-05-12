@@ -1,193 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import TabBar from "@/components/TabBar";
 import PageTransition from "@/components/PageTransition";
-
-interface Project {
-    id: number;
-    name: string;
-    description: string;
-    tech: string[];
-    github: string;
-    live: string | null;
-    status: "completed" | "in-progress" | "archived";
-    stars: number;
-    featured: boolean;
-    image: string;
-    color: string;
-}
-
-const projects: Project[] = [
-    {
-        id: 1,
-        name: "bert-misinformation-detection",
-        description:
-            "IEEE RCSM 2025 paper — Evaluating the portability of BERT-based misinformation detection from Twitter to Bluesky. Achieved F1-score of 0.73 in zero-shot transfer, improving to 0.997 after platform-specific fine-tuning.",
-        tech: ["Python", "BERT", "NLP", "Transfer Learning"],
-        github: "https://github.com/Swayam200",
-        live: null,
-        status: "completed",
-        stars: 0,
-        featured: true,
-        image: "/projects/bert-misinfo.png",
-        color: "purple",
-    },
-    {
-        id: 2,
-        name: "carbon-sleuth",
-        description:
-            "Hybrid Web + Desktop application for chemical equipment parameter visualisation. Built with Django REST, React frontend, and PyQt5 desktop client with pandas-driven data pipelines.",
-        tech: ["Python", "Django REST", "React", "PyQt5", "pandas"],
-        github: "https://github.com/Swayam200/carbon-sleuth",
-        live: "https://carbon-sleuth.vercel.app/",
-        status: "completed",
-        stars: 1,
-        featured: true,
-        image: "/projects/carbon-sleuth.png",
-        color: "blue",
-    },
-    {
-        id: 3,
-        name: "goldfish-password-generator",
-        description:
-            "Novel entropy-based password generation leveraging real-time biological motion patterns of goldfish captured via computer vision. Uses SHA-256 hashing with statistical randomness validation.",
-        tech: ["Python", "OpenCV", "Cryptography", "Computer Vision"],
-        github: "https://github.com/Swayam200/goldfish_password_generator",
-        live: null,
-        status: "in-progress",
-        stars: 2,
-        featured: true,
-        image: "/projects/goldfish-rng.png",
-        color: "green",
-    },
-    {
-        id: 4,
-        name: "leptospirosis-predictor",
-        description:
-            "Machine learning models to predict leptospirosis risk using climate and epidemiological datasets across multiple European regions. Features spatial risk pattern visualization.",
-        tech: ["Python", "scikit-learn", "pandas", "Data Analysis"],
-        github: "https://github.com/Swayam200/Leptospirosis-Predictor",
-        live: null,
-        status: "completed",
-        stars: 5,
-        featured: true,
-        image: "/projects/lepto-predictor.png",
-        color: "yellow",
-    },
-    {
-        id: 5,
-        name: "darzi-ai-resume-suite",
-        description:
-            "AI Resume Tailor Suite — leverages NLP and AI algorithms for personalized resume optimization with ATS optimization techniques. Led a 75+ member team as Project Task Lead at VITB AI Innovators Hub.",
-        tech: ["TypeScript", "Next.js", "NLP", "AI"],
-        github: "https://github.com/VIT-Bhopal-AI-Innovators-Hub/Darzi-AI-Resume-Suite",
-        live: "https://darze.vercel.app/",
-        status: "completed",
-        stars: 0,
-        featured: true,
-        image: "/projects/darzi.png",
-        color: "cyan",
-    },
-    {
-        id: 6,
-        name: "blood-cell-detection",
-        description:
-            "Blood Cell Detection system using YOLOv8 object detection. Trained on annotated microscopy images for real-time identification and classification of blood cells.",
-        tech: ["Python", "YOLOv8", "Computer Vision", "Deep Learning"],
-        github: "https://github.com/Swayam200/blood_cell_detection",
-        live: null,
-        status: "completed",
-        stars: 0,
-        featured: false,
-        image: "/projects/blood-cell.png",
-        color: "red",
-    },
-    {
-        id: 7,
-        name: "abusive-language-censoring-api",
-        description:
-            "Self-hosted text censoring API with dictionary + ML fallback. Built with FastAPI achieving sub-millisecond latency for real-time text moderation.",
-        tech: ["Python", "FastAPI", "NLP", "Machine Learning"],
-        github: "https://github.com/Swayam200/abusive-language-censoring-api",
-        live: null,
-        status: "completed",
-        stars: 0,
-        featured: false,
-        image: "/projects/text-censor.png",
-        color: "purple",
-    },
-    {
-        id: 8,
-        name: "indian-railways-analysis",
-        description:
-            "Data analysis and visualization of Indian Railways ticket booking dataset to identify interesting trends, patterns, and insights using pandas and plotly.",
-        tech: ["Python", "Jupyter", "pandas", "Data Visualization"],
-        github: "https://github.com/Swayam200/Indian-Railways-Analysis",
-        live: null,
-        status: "completed",
-        stars: 1,
-        featured: false,
-        image: "/projects/ir-analysis.png",
-        color: "blue",
-    },
-    {
-        id: 9,
-        name: "factly-verify",
-        description:
-            "Fact verification tool built with TypeScript for checking the veracity of claims and statements using NLP techniques.",
-        tech: ["TypeScript", "NLP", "React"],
-        github: "https://github.com/Swayam200/factly-verify",
-        live: null,
-        status: "completed",
-        stars: 0,
-        featured: false,
-        image: "/projects/factly.png",
-        color: "green",
-    },
-    {
-        id: 10,
-        name: "stt-model",
-        description:
-            "CPU-based Speech to Text Model using Vosk for offline speech recognition. Designed for low-resource environments without GPU dependency.",
-        tech: ["Python", "Vosk", "Speech Recognition"],
-        github: "https://github.com/Swayam200/STT_Model",
-        live: null,
-        status: "completed",
-        stars: 0,
-        featured: false,
-        image: "/projects/stt.png",
-        color: "yellow",
-    },
-    {
-        id: 11,
-        name: "mansik",
-        description:
-            "AI-powered mental wellness companion built with React Native Expo, Express, MongoDB, and Gemini. Includes empathetic chat, encrypted journaling, crisis detection, breathing exercises, mood insights, and a three-tier emotional memory system.",
-        tech: ["React Native", "Expo", "Express", "MongoDB", "Gemini AI"],
-        github: "https://github.com/Tanq567300/Mansik",
-        live: "https://mansik.vercel.app",
-        status: "completed",
-        stars: 3,
-        featured: true,
-        image: "/projects/mansik-placeholder.svg",
-        color: "green",
-    },
-    {
-        id: 12,
-        name: "khel-saarthi",
-        description:
-            "Mobile-first sports community platform connecting grassroots athletes with local organizers. Built with Expo, Express, MongoDB, Socket.IO, and Cloudinary for event discovery, host workflows, registrations, chat, and profile management.",
-        tech: ["React Native", "Expo", "Express", "MongoDB", "Socket.IO", "Cloudinary"],
-        github: "https://github.com/Madhuram2901/Khel-Saarthi",
-        live: null,
-        status: "completed",
-        stars: 1,
-        featured: true,
-        image: "/projects/khel_saarthi.png",
-        color: "cyan",
-    },
-];
+import { projects } from "@/lib/profile-data";
 
 const statusColors: Record<string, string> = {
     completed: "text-green-400",
@@ -281,7 +98,7 @@ export default function ProjectsPage() {
                                                 <span className="text-gray-300">{"{"}</span>
                                                 {!isExpanded && (
                                                     <span className="text-gray-500 ml-2 group-hover:text-gray-300 transition-colors">
-                                                        // {project.name} — click to expand
+                                                        <span>{"// "}</span>{project.name} - click to expand
                                                     </span>
                                                 )}
                                             </div>
@@ -289,7 +106,7 @@ export default function ProjectsPage() {
                                             {/* Expanded project JSON */}
                                             <div
                                                 className={`overflow-hidden transition-all duration-300 ${isExpanded
-                                                    ? "max-h-[800px] opacity-100"
+                                                    ? "max-h-[1200px] opacity-100"
                                                     : "max-h-0 opacity-0"
                                                     }`}
                                             >
@@ -324,9 +141,9 @@ export default function ProjectsPage() {
                                                         <span className="text-gray-300">,</span>
                                                     </div>
                                                     <div>
-                                                        <span className="text-blue-400">&quot;stars&quot;</span>
+                                                        <span className="text-blue-400">&quot;date&quot;</span>
                                                         <span className="text-gray-300">: </span>
-                                                        <span className="text-orange-300">{project.stars}</span>
+                                                        <span className="text-green-300">&quot;{project.date}&quot;</span>
                                                         <span className="text-gray-300">,</span>
                                                     </div>
                                                     <div>
@@ -356,6 +173,19 @@ export default function ProjectsPage() {
                                                         </div>
                                                     )}
                                                     <div>
+                                                        <span className="text-blue-400">&quot;highlights&quot;</span>
+                                                        <span className="text-gray-300">: [</span>
+                                                        <div className="pl-4">
+                                                            {project.highlights.map((highlight, i) => (
+                                                                <div key={highlight}>
+                                                                    <span className="text-green-300">&quot;{highlight}&quot;</span>
+                                                                    {i < project.highlights.length - 1 && <span className="text-gray-300">,</span>}
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                        <span className="text-gray-300">],</span>
+                                                    </div>
+                                                    <div>
                                                         <span className="text-blue-400">&quot;preview&quot;</span>
                                                         <span className="text-gray-300">: </span>
                                                         <span className="text-gray-500 hidden md:inline">&quot;→ see side panel&quot;</span>
@@ -378,7 +208,7 @@ export default function ProjectsPage() {
                                                         ))}
                                                     </div>
                                                     <div className="flex items-center gap-3 text-xs font-[family-name:var(--font-fira-code)] text-gray-500 mb-4">
-                                                        <span>⭐ {project.stars}</span>
+                                                        <span>{project.date}</span>
                                                         <span className={statusColors[project.status]}>
                                                             ● {project.status}
                                                         </span>
@@ -475,7 +305,13 @@ export default function ProjectsPage() {
 
                                 {/* Project image */}
                                 <div className={`relative w-full aspect-video rounded-lg border ${colorMap[expandedProject.color] || "border-gray-700"} bg-black overflow-hidden mb-6 flex-shrink-0`}>
-                                    <img src={expandedProject.image} alt={expandedProject.name} className="w-full h-full object-contain opacity-90 hover:opacity-100 transition-opacity" loading="lazy" decoding="async" />
+                                    <Image
+                                        src={expandedProject.image}
+                                        alt={expandedProject.name}
+                                        fill
+                                        sizes="(min-width: 768px) 45vw, 100vw"
+                                        className="object-contain opacity-90 hover:opacity-100 transition-opacity"
+                                    />
                                 </div>
 
                                 {/* Project details */}
@@ -501,7 +337,7 @@ export default function ProjectsPage() {
 
                                     {/* Stats */}
                                     <div className="flex items-center gap-4 text-xs font-[family-name:var(--font-fira-code)] text-gray-500 mb-6">
-                                        <span>⭐ {expandedProject.stars}</span>
+                                        <span>{expandedProject.date}</span>
                                         <span className={statusColors[expandedProject.status]}>
                                             ● {expandedProject.status}
                                         </span>
@@ -509,6 +345,15 @@ export default function ProjectsPage() {
                                             <span className="text-yellow-400">★ featured</span>
                                         )}
                                     </div>
+
+                                    <ul className="text-sm text-gray-400 space-y-2 mb-6 font-[family-name:var(--font-inter)]">
+                                        {expandedProject.highlights.map((highlight) => (
+                                            <li key={highlight} className="flex items-start gap-2">
+                                                <span className="text-gray-600 mt-1.5 text-[8px]">▸</span>
+                                                <span>{highlight}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
 
                                     {/* Action buttons */}
                                     <div className="flex gap-3">

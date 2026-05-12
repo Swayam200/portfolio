@@ -25,7 +25,7 @@ const firaCode = Fira_Code({
 export const metadata: Metadata = {
   title: "Swayam Prakash Panda — Portfolio",
   description:
-    "AI & ML Engineer | Full Stack Developer | B.Tech CSE (AI & ML)",
+    "B.Tech CSE (AI & ML) student, IEEE-published researcher, and full-stack ML systems builder.",
   icons: {
     icon: "/favicon.ico",
   },

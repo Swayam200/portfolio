@@ -10,9 +10,10 @@ import {
     getWelcomeBanner,
     getWeatherDescription,
     getWeatherIcon,
-    getAIResponse,
+    getLocalAIResponse,
     availableCommands,
 } from "@/lib/terminal-data";
+import { profile, projects, skillCategories } from "@/lib/profile-data";
 
 export type TLine = {
     text: string;
@@ -25,6 +26,13 @@ const out = (text: string, className = "text-gray-400"): TLine => ({
     text,
     className,
 });
+
+const aiLineClass = (line: string) =>
+    line.includes("━")
+        ? "text-blue-400"
+        : line.startsWith("  ->") || line.startsWith("  •")
+            ? "text-gray-300"
+            : "text-cyan-400";
 
 interface TerminalCoreProps {
     /** If true, renders just the terminal body (no chrome/titlebar). Used inside overlay. */
@@ -42,7 +50,7 @@ export default function TerminalCore({ embedded = false, onExit, initialCommand 
     const [historyIdx, setHistoryIdx] = useState(-1);
     const [mode, setMode] = useState<TerminalMode>("terminal");
     const [matrixActive, setMatrixActive] = useState(false);
-    const [startTime] = useState(Date.now());
+    const [startTime] = useState(() => Date.now());
     const [theme, setTheme] = useState<"default" | "amber" | "matrix">("default");
     const terminalRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -112,7 +120,7 @@ export default function TerminalCore({ embedded = false, onExit, initialCommand 
                         out("    ask <query>   Ask anything about Swayam (AI)"),
                         out("    message       Compose an email"),
                         out("    resume        Download resume"),
-                        out("    weather       Current weather in Bhopal"),
+                        out("    weather       Current weather in Daman"),
                         out("    fortune       Random programming quote"),
                         out("    cowsay <msg>  Make a cow say something"),
                         out(""),
@@ -134,10 +142,10 @@ export default function TerminalCore({ embedded = false, onExit, initialCommand 
                         out("  ┌───────────────────────────────────────────┐", "text-gray-700"),
                         out("  │                                           │", "text-gray-700"),
                         out("  │   Swayam Prakash Panda                   │", "text-green-400"),
-                        out("  │   B.Tech CSE (AI & ML) — VIT Bhopal      │", "text-gray-300"),
-                        out("  │   GPA: 8.64/10.00 • IEEE Researcher      │", "text-gray-300"),
-                        out("  │   Club Coordinator @ GfG VIT Bhopal      │", "text-gray-500"),
-                        out("  │   Tech Lead @ VITB AI Innovators Hub     │", "text-gray-500"),
+                        out("  │   B.Tech CSE (AI & ML) - VIT Bhopal      │", "text-gray-300"),
+                        out(`  │   CGPA: ${profile.cgpa.padEnd(13)} IEEE Researcher │`, "text-gray-300"),
+                        out("  │   FOSSEE Intern @ IIT Bombay             │", "text-gray-500"),
+                        out("  │   Student Coordinator @ GfG VIT Bhopal   │", "text-gray-500"),
                         out("  │   Daman, India                           │", "text-gray-600"),
                         out("  │                                           │", "text-gray-700"),
                         out("  └───────────────────────────────────────────┘", "text-gray-700"),
@@ -151,23 +159,23 @@ export default function TerminalCore({ embedded = false, onExit, initialCommand 
                         out(""),
                         out("  Social Links", "text-blue-400"),
                         out("  ━━━━━━━━━━━━"),
-                        out("  github      → github.com/Swayam200"),
-                        out("  linkedin    → linkedin.com/in/swayam200"),
-                        out("  twitter     → twitter.com/swayam200"),
-                        out("  email       → swayam.panda200@gmail.com"),
+                        out("  github      -> github.com/Swayam200"),
+                        out("  linkedin    -> linkedin.com/in/swayam200"),
+                        out("  website     -> swayam200.me"),
+                        out(`  email       -> ${profile.email}`),
                         out("")
                     );
                     break;
                 }
 
                 case "email": {
-                    lines.push(out(""), out("  swayam.panda200@gmail.com", "text-green-400"), out('  Type "message" to compose an email.'), out(""));
+                    lines.push(out(""), out(`  ${profile.email}`, "text-green-400"), out('  Type "message" to compose an email.'), out(""));
                     break;
                 }
 
                 case "message": {
                     lines.push(out(""), out("  Opening email client...", "text-blue-400"), out(""));
-                    window.open("mailto:swayam.panda200@gmail.com?subject=Hello from Portfolio", "_blank");
+                    window.open(`mailto:${profile.email}?subject=Hello from Portfolio`, "_blank");
                     break;
                 }
 
@@ -232,12 +240,9 @@ export default function TerminalCore({ embedded = false, onExit, initialCommand 
                     lines.push(
                         out(""),
                         out("  const skills = {", "text-white"),
-                        out('    languages:  ["Python", "C++", "TypeScript", "JavaScript"],', "text-green-400"),
-                        out('    ml_nlp:     ["BERT", "scikit-learn", "pandas", "YOLOv8", "Vosk"],', "text-purple-400"),
-                        out('    frontend:   ["React", "Next.js", "Tailwind CSS"],', "text-blue-400"),
-                        out('    backend:    ["Node.js", "Express", "FastAPI", "Django REST"],', "text-yellow-400"),
-                        out('    vision:     ["OpenCV", "PyQt5", "Feature Extraction"],', "text-red-400"),
-                        out('    tools:      ["Git", "PostgreSQL", "GCP", "AWS", "MongoDB"],', "text-cyan-400"),
+                        ...skillCategories.map((category) =>
+                            out(`    ${category.label.replace("// ", "").toLowerCase().replace(/[^a-z0-9]+/g, "_")}: ["${category.skills.join('", "')}"],`, category.color)
+                        ),
                         out("  };", "text-white"),
                         out("")
                     );
@@ -249,14 +254,10 @@ export default function TerminalCore({ embedded = false, onExit, initialCommand 
                         out(""),
                         out("  Notable Projects", "text-yellow-400"),
                         out("  ━━━━━━━━━━━━━━━━"),
-                        out("  → BERT Misinformation Detection  (IEEE paper, NLP)"),
-                        out("  → Carbon Sleuth                  (Django+React+PyQt5)"),
-                        out("  → Goldfish Password Generator    (OpenCV, Crypto) ★2"),
-                        out("  → Leptospirosis Predictor        (ML, epidemiology) ★5"),
-                        out("  → Darzi AI Resume Suite          (TypeScript, 75+ team)"),
-                        out("  → Blood Cell Detection           (YOLOv8)"),
-                        out("  → Abusive Language Censoring API (FastAPI, <1ms)"),
-                        out("  → Indian Railways Analysis       (pandas, viz) ★1"),
+                        ...projects.flatMap((project) => [
+                            out(`  -> ${project.name} (${project.date})`, "text-green-400"),
+                            out(`     ${project.tech.slice(0, 4).join(" + ")}`, "text-gray-500"),
+                        ]),
                         out(""),
                         out('  Visit /projects for full details.', "text-gray-500"),
                         out("")
@@ -321,11 +322,30 @@ export default function TerminalCore({ embedded = false, onExit, initialCommand 
                 }
 
                 case "ask": {
-                    const regexResponse = getAIResponse(args);
-                    regexResponse.forEach((line) => {
-                        lines.push(out(line, line.includes("━") ? "text-blue-400" : line.startsWith("  •") ? "text-gray-300" : "text-cyan-400"));
-                    });
-                    break;
+                    const localResponse = getLocalAIResponse(args);
+                    if (localResponse.matched) {
+                        localResponse.lines.forEach((line) => {
+                            lines.push(out(line, aiLineClass(line)));
+                        });
+                        break;
+                    }
+
+                    addLines([...lines, out(""), out("  No exact terminal match. Trying AI fallback...", "text-gray-500")]);
+                    setCmdHistory((prev) => [cmd, ...prev]);
+                    setHistoryIdx(-1);
+                    try {
+                        const res = await fetch("/api/chat", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ query: args }),
+                        });
+                        const data = (await res.json()) as { lines?: string[]; source?: string };
+                        const responseLines = data.lines?.length ? data.lines : localResponse.lines;
+                        addLines(responseLines.map((line) => out(line, aiLineClass(line))));
+                    } catch {
+                        addLines(localResponse.lines.map((line) => out(line, aiLineClass(line))));
+                    }
+                    return;
                 }
 
                 case "echo": {
@@ -357,7 +377,7 @@ export default function TerminalCore({ embedded = false, onExit, initialCommand 
 
                 case "cat": {
                     if (args.toLowerCase().includes("readme") || args.toLowerCase().includes("about")) {
-                        lines.push(out(""), out("  # Swayam Prakash Panda", "text-green-400"), out("  B.Tech CSE (AI & ML) — VIT Bhopal • GPA: 8.64"), out("  IEEE Researcher | NLP & Transfer Learning"), out(""), out("  Club Coordinator @ GfG VIT Bhopal"), out("  Tech Lead @ VITB AI Innovators Hub"), out('  Type "ask" followed by a question to learn more!'), out(""));
+                        lines.push(out(""), out("  # Swayam Prakash Panda", "text-green-400"), out(`  B.Tech CSE (AI & ML) - VIT Bhopal | CGPA: ${profile.cgpa}`), out("  IEEE Researcher | ML Systems | Full-Stack Builder"), out(""), out("  FOSSEE Intern @ IIT Bombay"), out("  Student Coordinator @ GfG VIT Bhopal"), out('  Type "ask" followed by a question to learn more.'), out(""));
                     } else if (args.toLowerCase().includes("passwd") || args.toLowerCase().includes("etc")) {
                         lines.push(out(""), out("  Nice try, hacker!", "text-red-400"), out(""));
                     } else {
@@ -399,9 +419,9 @@ export default function TerminalCore({ embedded = false, onExit, initialCommand 
                         out("    swayam [--skill SKILL] [--project PROJECT]"),
                         out(""),
                         out("  DESCRIPTION", "text-white"),
-                        out("    Pre-final year CSE student (AI & ML) at VIT Bhopal."),
-                        out("    IEEE-published researcher in NLP & misinformation"),
-                        out("    detection. GPA: 8.64/10. 46 GitHub repos."),
+                        out("    B.Tech CSE student (AI & ML) at VIT Bhopal."),
+                        out("    IEEE-published researcher building ML systems,"),
+                        out(`    RAG apps, and web platforms. CGPA: ${profile.cgpa}.`),
                         out(""),
                         out("  SEE ALSO", "text-white"),
                         out("    whoami(1), skills(1), ask(1), projects(1)"),
@@ -456,11 +476,30 @@ export default function TerminalCore({ embedded = false, onExit, initialCommand 
 
                 default: {
                     const fullQuery = trimmed;
-                    const regexResponse = getAIResponse(fullQuery);
-                    regexResponse.forEach((line) => {
-                        lines.push(out(line, line.includes("━") ? "text-blue-400" : line.startsWith("  •") ? "text-gray-300" : "text-cyan-400"));
-                    });
-                    break;
+                    const localResponse = getLocalAIResponse(fullQuery);
+                    if (localResponse.matched) {
+                        localResponse.lines.forEach((line) => {
+                            lines.push(out(line, aiLineClass(line)));
+                        });
+                        break;
+                    }
+
+                    addLines([...lines, out(""), out("  Command not found. Trying AI fallback...", "text-gray-500")]);
+                    setCmdHistory((prev) => [cmd, ...prev]);
+                    setHistoryIdx(-1);
+                    try {
+                        const res = await fetch("/api/chat", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ query: fullQuery }),
+                        });
+                        const data = (await res.json()) as { lines?: string[]; source?: string };
+                        const responseLines = data.lines?.length ? data.lines : localResponse.lines;
+                        addLines(responseLines.map((line) => out(line, aiLineClass(line))));
+                    } catch {
+                        addLines(localResponse.lines.map((line) => out(line, aiLineClass(line))));
+                    }
+                    return;
                 }
             }
 
