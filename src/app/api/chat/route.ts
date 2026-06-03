@@ -6,7 +6,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
-const FALLBACK_MODEL = "gemini-1.5-flash";
+const FALLBACK_MODEL = "gemini-3.1-flash-lite";
 
 function wrapText(text: string, width = 76) {
     return text
