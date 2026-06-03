@@ -1,3 +1,4 @@
+import Fuse from "fuse.js";
 import {
     achievements,
     education,
@@ -409,17 +410,17 @@ function wrapLine(text: string, width = 78) {
 }
 
 function buildRelatedFactResponse(query: string): string[] | null {
-    const terms = getSearchTerms(query);
-    if (terms.length === 0) return null;
+    const fuse = new Fuse(searchableFacts, {
+        includeScore: true,
+        threshold: 0.5,
+        ignoreLocation: true,
+        useExtendedSearch: true,
+    });
 
-    const ranked = searchableFacts
-        .map((fact) => {
-            const lower = fact.toLowerCase();
-            const score = terms.reduce((total, term) => total + (lower.includes(term) ? 1 : 0), 0);
-            return { fact, score };
-        })
-        .filter((item) => item.score > 0)
-        .sort((a, b) => b.score - a.score)
+    const results = fuse.search(query);
+    const ranked = results
+        .filter((r) => (r.score ?? 1) < 0.6)
+        .map((r) => r.item)
         .slice(0, 5);
 
     if (ranked.length === 0) return null;
@@ -428,7 +429,7 @@ function buildRelatedFactResponse(query: string): string[] | null {
         "",
         "  Related Profile Facts",
         "  ━━━━━━━━━━━━━━━━━━━━━",
-        ...ranked.flatMap((item) => wrapLine(item.fact).map((line) => `  -> ${line}`)),
+        ...ranked.flatMap((item) => wrapLine(item).map((line) => `  -> ${line}`)),
         "",
     ];
 }
@@ -510,6 +511,7 @@ export const availableCommands = [
     "echo",
     "banner",
     "ping",
+    "demo",
     "sudo",
     "cat",
     "ls",

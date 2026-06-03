@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import SnakeGame from "@/components/SnakeGame";
 import MatrixRain from "@/components/MatrixRain";
 import {
@@ -44,14 +45,16 @@ interface TerminalCoreProps {
 }
 
 export default function TerminalCore({ embedded = false, onExit, initialCommand }: TerminalCoreProps) {
+    const router = useRouter();
     const [history, setHistory] = useState<TLine[]>(getWelcomeBanner());
     const [input, setInput] = useState("");
+    const [ghostText, setGhostText] = useState("");
     const [cmdHistory, setCmdHistory] = useState<string[]>([]);
     const [historyIdx, setHistoryIdx] = useState(-1);
     const [mode, setMode] = useState<TerminalMode>("terminal");
     const [matrixActive, setMatrixActive] = useState(false);
     const [startTime] = useState(() => Date.now());
-    const [theme, setTheme] = useState<"default" | "amber" | "matrix">("default");
+    const [theme, setTheme] = useState<"default" | "amber" | "matrix" | "dracula" | "synthwave" | "monokai">("default");
     const terminalRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -128,6 +131,7 @@ export default function TerminalCore({ embedded = false, onExit, initialCommand 
                         out("    snake         Play Snake game"),
                         out("    matrix        Toggle matrix rain effect"),
                         out("    ping <host>   Ping a host"),
+                        out("    demo          Run interactive terminal demo"),
                         out("    man           Read the manual"),
                         out(""),
                         out('  Tip: Use Tab for auto-complete, Ctrl+L to clear', "text-gray-600"),
@@ -339,9 +343,37 @@ export default function TerminalCore({ embedded = false, onExit, initialCommand 
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({ query: args }),
                         });
-                        const data = (await res.json()) as { lines?: string[]; source?: string };
-                        const responseLines = data.lines?.length ? data.lines : localResponse.lines;
-                        addLines(responseLines.map((line) => out(line, aiLineClass(line))));
+                        
+                        const contentType = res.headers.get("content-type") || "";
+                        if (contentType.includes("application/json")) {
+                            const data = await res.json();
+                            const responseLines = data.lines?.length ? data.lines : localResponse.lines;
+                            addLines(responseLines.map((line: string) => out(line, aiLineClass(line))));
+                        } else {
+                            const reader = res.body?.getReader();
+                            if (!reader) throw new Error("No reader");
+                            
+                            addLines([out(""), out("  AI Fallback", "text-blue-400"), out("  ━━━━━━━━━━━", "text-blue-400"), out("  ", aiLineClass("  ->"))]);
+                            const decoder = new TextDecoder();
+                            let aiText = "  ";
+                            
+                            while (true) {
+                                const { done, value } = await reader.read();
+                                if (done) break;
+                                const chunk = decoder.decode(value, { stream: true });
+                                aiText += chunk;
+                                
+                                setHistory((prev) => {
+                                    const next = [...prev];
+                                    const last = next[next.length - 1];
+                                    if (last) {
+                                        next[next.length - 1] = { ...last, text: aiText, className: `${aiLineClass("  ->")} whitespace-pre-wrap max-w-full` };
+                                    }
+                                    return next;
+                                });
+                            }
+                            addLines([out("")]);
+                        }
                     } catch {
                         addLines(localResponse.lines.map((line) => out(line, aiLineClass(line))));
                     }
@@ -393,11 +425,19 @@ export default function TerminalCore({ embedded = false, onExit, initialCommand 
 
                 case "cd": {
                     if (args === ".." || args === "/") {
-                        lines.push(out("  Already at the root of awesomeness!"));
+                        router.push("/");
+                        lines.push(out("  Navigating to home..."));
                     } else if (args === "projects" || args === "/projects") {
+                        router.push("/projects");
                         lines.push(out("  Redirecting to projects...", "text-blue-400"));
+                    } else if (args === "about" || args === "/about") {
+                        router.push("/about");
+                        lines.push(out("  Redirecting to about...", "text-blue-400"));
+                    } else if (args === "achievements" || args === "/achievements") {
+                        router.push("/achievements");
+                        lines.push(out("  Redirecting to achievements...", "text-blue-400"));
                     } else {
-                        lines.push(out(`  cd: ${args || "~"}: Always at home here`));
+                        lines.push(out(`  cd: ${args || "~"}: No such directory. Try 'projects', 'about', or 'achievements'.`));
                     }
                     break;
                 }
@@ -461,13 +501,38 @@ export default function TerminalCore({ embedded = false, onExit, initialCommand 
 
                 case "theme": {
                     const themeName = args.toLowerCase();
-                    if (themeName === "default" || themeName === "amber" || themeName === "matrix") {
-                        setTheme(themeName);
+                    const validThemes = ["default", "amber", "matrix", "dracula", "synthwave", "monokai"];
+                    if (validThemes.includes(themeName)) {
+                        setTheme(themeName as any);
                         lines.push(out(""), out(`  Theme switched to "${themeName}".`, "text-green-400"), out(""));
                     } else {
-                        lines.push(out(""), out("  Available themes: default, amber, matrix", "text-yellow-400"), out("  Usage: theme <name>"), out(""));
+                        lines.push(out(""), out(`  Available themes: ${validThemes.join(", ")}`, "text-yellow-400"), out("  Usage: theme <name>"), out(""));
                     }
                     break;
+                }
+                
+                case "demo": {
+                    setCmdHistory((prev) => [cmd, ...prev]);
+                    setHistoryIdx(-1);
+                    
+                    const runDemo = async () => {
+                        const commands = ["whoami", "projects", "matrix", "cd projects"];
+                        for (const dCmd of commands) {
+                            setInput("");
+                            for (let i = 0; i < dCmd.length; i++) {
+                                setInput(dCmd.substring(0, i + 1));
+                                await new Promise((r) => setTimeout(r, 80));
+                            }
+                            await new Promise((r) => setTimeout(r, 200));
+                            processCommand(dCmd);
+                            await new Promise((r) => setTimeout(r, 800));
+                        }
+                        setInput("");
+                        // Next.js router.push inside cd command can steal focus, re-focus terminal
+                        setTimeout(() => focusInput(), 100);
+                    };
+                    runDemo();
+                    return;
                 }
 
                 case "": {
@@ -493,9 +558,37 @@ export default function TerminalCore({ embedded = false, onExit, initialCommand 
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({ query: fullQuery }),
                         });
-                        const data = (await res.json()) as { lines?: string[]; source?: string };
-                        const responseLines = data.lines?.length ? data.lines : localResponse.lines;
-                        addLines(responseLines.map((line) => out(line, aiLineClass(line))));
+                        
+                        const contentType = res.headers.get("content-type") || "";
+                        if (contentType.includes("application/json")) {
+                            const data = await res.json();
+                            const responseLines = data.lines?.length ? data.lines : localResponse.lines;
+                            addLines(responseLines.map((line: string) => out(line, aiLineClass(line))));
+                        } else {
+                            const reader = res.body?.getReader();
+                            if (!reader) throw new Error("No reader");
+                            
+                            addLines([out(""), out("  AI Fallback", "text-blue-400"), out("  ━━━━━━━━━━━", "text-blue-400"), out("  ", aiLineClass("  ->"))]);
+                            const decoder = new TextDecoder();
+                            let aiText = "  ";
+                            
+                            while (true) {
+                                const { done, value } = await reader.read();
+                                if (done) break;
+                                const chunk = decoder.decode(value, { stream: true });
+                                aiText += chunk;
+                                
+                                setHistory((prev) => {
+                                    const next = [...prev];
+                                    const last = next[next.length - 1];
+                                    if (last) {
+                                        next[next.length - 1] = { ...last, text: aiText, className: `${aiLineClass("  ->")} whitespace-pre-wrap max-w-full` };
+                                    }
+                                    return next;
+                                });
+                            }
+                            addLines([out("")]);
+                        }
                     } catch {
                         addLines(localResponse.lines.map((line) => out(line, aiLineClass(line))));
                     }
@@ -524,6 +617,7 @@ export default function TerminalCore({ embedded = false, onExit, initialCommand 
         if (e.key === "Enter") {
             processCommand(input);
             setInput("");
+            setGhostText("");
         } else if (e.key === "ArrowUp") {
             e.preventDefault();
             if (historyIdx < cmdHistory.length - 1) {
@@ -543,13 +637,19 @@ export default function TerminalCore({ embedded = false, onExit, initialCommand 
             }
         } else if (e.key === "Tab") {
             e.preventDefault();
-            const partial = input.toLowerCase().trim();
-            if (!partial) return;
-            const matches = availableCommands.filter((c) => c.startsWith(partial));
-            if (matches.length === 1) {
-                setInput(matches[0] + " ");
-            } else if (matches.length > 1) {
-                addLines([out(`$ ${input}`, "text-white"), out(`  ${matches.join("  ")}`, "text-gray-500")]);
+            if (ghostText) {
+                setInput(input + ghostText + " ");
+                setGhostText("");
+            } else {
+                const partial = input.toLowerCase().trim();
+                if (!partial) return;
+                const matches = availableCommands.filter((c) => c.startsWith(partial));
+                if (matches.length === 1) {
+                    setInput(matches[0] + " ");
+                    setGhostText("");
+                } else if (matches.length > 1) {
+                    addLines([out(`$ ${input}`, "text-white"), out(`  ${matches.join("  ")}`, "text-gray-500")]);
+                }
             }
         } else if (e.key === "l" && e.ctrlKey) {
             e.preventDefault();
@@ -573,6 +673,9 @@ export default function TerminalCore({ embedded = false, onExit, initialCommand 
         default: { prompt: "text-green-400", text: "text-white" },
         amber: { prompt: "text-amber-400", text: "text-amber-200" },
         matrix: { prompt: "text-green-500", text: "text-green-300" },
+        dracula: { prompt: "text-purple-400", text: "text-pink-400" },
+        synthwave: { prompt: "text-cyan-400", text: "text-fuchsia-400" },
+        monokai: { prompt: "text-lime-400", text: "text-yellow-200" },
     };
     const ct = themeColors[theme];
 
@@ -596,19 +699,39 @@ export default function TerminalCore({ embedded = false, onExit, initialCommand 
                             {line.text || "\u00A0"}
                         </div>
                     ))}
-                    <div className="flex items-center leading-6">
+                    <div className="flex items-center leading-6 relative">
                         <span className={`${ct.prompt} mr-2`}>$</span>
-                        <input
-                            ref={inputRef}
-                            type="text"
-                            value={input}
-                            onChange={(e) => setInput(e.target.value)}
-                            onKeyDown={handleKeyDown}
-                            className={`bg-transparent border-none outline-none ${ct.text} flex-grow font-[family-name:var(--font-fira-code)] text-sm caret-green-400`}
-                            autoFocus
-                            spellCheck={false}
-                            autoComplete="off"
-                        />
+                        <div className="relative flex-grow flex items-center">
+                            <span className="absolute left-0 top-0 text-gray-500 pointer-events-none font-[family-name:var(--font-fira-code)] text-sm flex">
+                                <span className="opacity-0 whitespace-pre">{input}</span>
+                                <span>{ghostText}</span>
+                            </span>
+                            <input
+                                ref={inputRef}
+                                type="text"
+                                value={input}
+                                onChange={(e) => {
+                                    const val = e.target.value;
+                                    setInput(val);
+                                    const partial = val.toLowerCase();
+                                    if (!partial) {
+                                        setGhostText("");
+                                    } else {
+                                        const matches = availableCommands.filter((c) => c.startsWith(partial));
+                                        if (matches.length === 1 && matches[0] !== partial) {
+                                            setGhostText(matches[0].substring(partial.length));
+                                        } else {
+                                            setGhostText("");
+                                        }
+                                    }
+                                }}
+                                onKeyDown={handleKeyDown}
+                                className={`bg-transparent border-none outline-none ${ct.text} flex-grow font-[family-name:var(--font-fira-code)] text-sm caret-green-400 z-10`}
+                                autoFocus
+                                spellCheck={false}
+                                autoComplete="off"
+                            />
+                        </div>
                     </div>
                 </div>
             )}

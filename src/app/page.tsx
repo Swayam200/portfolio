@@ -122,8 +122,14 @@ export default function Home() {
           {/* Terminal CTA — appears below code block */}
           <div
             onClick={open}
-            className="mt-4 flex items-center justify-center gap-2 py-3 px-4 rounded-md border border-dashed border-gray-800 hover:border-gray-600 cursor-pointer group/cta transition-all duration-300 hover:bg-white/[0.02]"
+            className="mt-4 flex items-center justify-center gap-2 py-3 px-4 rounded-md border border-dashed border-gray-800 hover:border-gray-600 cursor-pointer group/cta transition-all duration-300 hover:bg-white/[0.02] relative"
           >
+            {/* Floating Onboarding Tooltip */}
+            <div className="absolute -top-16 left-1/2 -translate-x-1/2 bg-blue-600/90 backdrop-blur-sm border border-blue-400 text-white text-xs py-2 px-4 rounded shadow-xl whitespace-nowrap animate-bounce pointer-events-none z-10 hidden md:block">
+              Hey! This is a fully interactive terminal. Click here and run <strong className="text-yellow-300 font-mono">demo</strong> to see!
+              <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-blue-600/90 border-r border-b border-blue-400 rotate-45"></div>
+            </div>
+
             <span className="text-green-500 font-[family-name:var(--font-fira-code)] text-sm group-hover/cta:text-green-400 transition-colors">
               $
             </span>

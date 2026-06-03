@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { getLocalAIResponse } from "@/lib/terminal-data";
 import { getPortfolioContext } from "@/lib/profile-data";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+export const runtime = "edge";
+export const dynamic = "force-dynamic";
 
 const FALLBACK_MODEL = "gemini-1.5-flash";
 
@@ -46,7 +50,7 @@ export async function POST(request: Request) {
         });
     }
 
-    const model = process.env.GEMINI_MODEL || FALLBACK_MODEL;
+    const modelName = process.env.GEMINI_MODEL || FALLBACK_MODEL;
     const prompt = [
         "You are the portfolio assistant for Swayam Prakash Panda.",
         "Answer only from the facts below. If the answer is not present, say that it is not listed in the portfolio and suggest contacting Swayam.",
@@ -59,50 +63,38 @@ export async function POST(request: Request) {
     ].join("\n");
 
     try {
-        const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-            {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    contents: [
-                        {
-                            role: "user",
-                            parts: [{ text: prompt }],
-                        },
-                    ],
-                    generationConfig: {
-                        temperature: 0.2,
-                        maxOutputTokens: 220,
-                    },
-                }),
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({ model: modelName });
+        
+        const result = await model.generateContentStream({
+            contents: [{ role: "user", parts: [{ text: prompt }] }],
+            generationConfig: {
+                temperature: 0.2,
+                maxOutputTokens: 220,
+            },
+        });
+
+        const stream = new ReadableStream({
+            async start(controller) {
+                try {
+                    for await (const chunk of result.stream) {
+                        const text = chunk.text();
+                        if (text) {
+                            controller.enqueue(new TextEncoder().encode(text));
+                        }
+                    }
+                    controller.close();
+                } catch (e) {
+                    controller.error(e);
+                }
             }
-        );
+        });
 
-        if (!response.ok) {
-            return NextResponse.json({
-                source: localResponse.source,
-                lines: localResponse.lines,
-            });
-        }
-
-        const data = await response.json();
-        const text = data?.candidates?.[0]?.content?.parts
-            ?.map((part: { text?: string }) => part.text)
-            .filter(Boolean)
-            .join(" ")
-            .trim();
-
-        if (!text) {
-            return NextResponse.json({
-                source: localResponse.source,
-                lines: localResponse.lines,
-            });
-        }
-
-        return NextResponse.json({
-            source: "gemini",
-            lines: terminalLines("AI Fallback", text),
+        return new NextResponse(stream, {
+            headers: {
+                "Content-Type": "text/plain",
+                "Transfer-Encoding": "chunked",
+            },
         });
     } catch {
         return NextResponse.json({
